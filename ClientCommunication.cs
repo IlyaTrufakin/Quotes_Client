@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Quotes_Client
 {
+  
+
     public class ClientCommunication
     {
         private Socket? clientSocket;
@@ -35,49 +37,6 @@ namespace Quotes_Client
         {
             return clientSocket != null && clientSocket.Connected;
         }
-
-
-        public async Task<string> SendMessageAndReceiveAsync(string message)
-        {
-            try
-            {
-                byte[] sendData = Encoding.Unicode.GetBytes(message);
-                await clientSocket.SendAsync(new ArraySegment<byte>(sendData), SocketFlags.None);
-
-                // Ожидание ответа в отдельном потоке
-                Task<string> receiveTask = Task.Run(async () =>
-                {
-                    byte[] receiveData = new byte[256];
-                    StringBuilder receivedString = new StringBuilder();
-
-                    while (true)
-                    {
-                        int bytesReceived = await clientSocket.ReceiveAsync(new ArraySegment<byte>(receiveData), SocketFlags.None);
-                        if (clientSocket.Available > 0)
-                        {
-                            receivedString.Append(Encoding.Unicode.GetString(receiveData, 0, bytesReceived));
-                        }
-                        else
-                        {
-                            break; // Если не получено байтов, завершаем цикл
-                        }
-                    }
-
-                    return receivedString.ToString();
-                });
-
-                // Дождитесь завершения задачи по получению ответа
-                string receivedMessage = await receiveTask;
-
-                return receivedMessage;
-            }
-            catch (Exception ex)
-            {
-                return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
-            }
-        }
-
-
 
         public string SendMessage(string message)
         {
