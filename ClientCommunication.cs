@@ -65,20 +65,10 @@ namespace Quotes_Client
                 return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
             }
 
-            try
-            {
 
-                byte[] sendData = Encoding.Unicode.GetBytes(message);
-                await Task.Run(() => clientSocket.Send(sendData)); // Отправка сообщения в отдельном потоке
-                return await Task.Run(() => ReceiveMessage()); // Ожидание и прием ответа в отдельном потоке
-            }
-            catch (Exception ex)
-            {
-                return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
-            }
         }
 
-       
+
         private string ReceiveMessage()
         {
             try

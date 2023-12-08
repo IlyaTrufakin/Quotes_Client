@@ -23,7 +23,11 @@
             <TextBox x:Name="ipAddress" DockPanel.Dock="Left" Width="100" VerticalAlignment="Center" Text="127.0.0.1"></TextBox>
             <Label DockPanel.Dock="Left" VerticalAlignment="Center" >Enter port number:</Label>
             <TextBox x:Name="portNumber" DockPanel.Dock="Left" Width="50" VerticalAlignment="Center" Text="8005"></TextBox>
-            <Button x:Name="ConnectButton" DockPanel.Dock="Right" Margin="5"  Width="90" HorizontalAlignment="Right" Click="Button_Click">Connect</Button>
+            <Label DockPanel.Dock="Left" VerticalAlignment="Center">login:</Label>
+            <TextBox x:Name="login" DockPanel.Dock="Left" Width="50" VerticalAlignment="Center" Text="ilya"></TextBox>
+            <Label DockPanel.Dock="Left" VerticalAlignment="Center" >password:</Label>
+            <TextBox x:Name="password" DockPanel.Dock="Left" Width="50" VerticalAlignment="Center" Text="trufakin"></TextBox>
+            <Button x:Name="ConnectButton" DockPanel.Dock="Right" Margin="5"  Width="70" HorizontalAlignment="Right" Click="Button_Click">Connect</Button>
             <Button x:Name="SendMessageButton" DockPanel.Dock="Right" Margin="5"  Width="90" HorizontalAlignment="Right" Click="SendMessageButton_Click">Send Message</Button>
         </DockPanel>
 

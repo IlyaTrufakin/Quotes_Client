@@ -20,6 +20,8 @@ namespace Quotes_Client
     {
         private DispatcherTimer timer;
         private ClientCommunication clientCommunication;
+        private string Password = "trufakin";
+        private string Login = "ilya";
 
         public MainWindow()
         {
@@ -34,12 +36,29 @@ namespace Quotes_Client
         }
 
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             string connectionResult = clientCommunication.ConnectToServer(ipAddress.Text, portNumber.Text);
             OutputWindow.Text += connectionResult + Environment.NewLine;
             SendMessageButton.IsEnabled = clientCommunication.IsConnected();
             ScrollTextBlock.ScrollToEnd();
+            if (clientCommunication.IsConnected())
+            {
+                try
+                {
+                    string response = await clientCommunication.SendMessageAndReceiveResponseAsync($"login:{login.Text}:{password.Text}");
+                    OutputWindow.Text += "Ответ сервера: " + response + Environment.NewLine;
+                }
+                catch (Exception ex)
+                {
+                    OutputWindow.Text += "Ошибка: " + ex.Message + Environment.NewLine;
+                }
+
+            }
+            else
+            {
+                OutputWindow.Text += "Сообщение не отправлено: нет соединения с сервером" + Environment.NewLine;
+            }
         }
 
 
