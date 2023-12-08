@@ -25,6 +25,8 @@ namespace Quotes_Client
                 IPEndPoint endpoint = SocketInit(ipAddress, port);
                 clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 clientSocket.Connect(endpoint);
+                // Устанавливаем тайм-аут 1 секунда, на прием данных
+                //clientSocket.ReceiveTimeout = 1000;
                 return "Соединение с сервером установлено";
             }
             catch (Exception ex)
@@ -38,13 +40,49 @@ namespace Quotes_Client
             return clientSocket != null && clientSocket.Connected;
         }
 
-        public string SendMessage(string message)
+
+        public async Task<string> SendMessageAndReceiveResponseAsync(string message)
         {
             try
             {
-                byte[] sendData = Encoding.Unicode.GetBytes(message);
-                clientSocket.Send(sendData);
+                if (clientSocket != null && clientSocket.Poll(0, SelectMode.SelectWrite))
+                {
+                    // Сокет готов для отправки данных
+                    byte[] sendData = Encoding.Unicode.GetBytes(message);
+                    await Task.Run(() => clientSocket.Send(sendData)); // Отправка сообщения в отдельном потоке
 
+                    // Ожидание и прием ответа в отдельном потоке
+                    return await Task.Run(() => ReceiveMessage());
+                }
+                else
+                {
+                    // Сокет не готов для отправки данных
+                    return "Сокет не готов для отправки данных";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
+            }
+
+            try
+            {
+
+                byte[] sendData = Encoding.Unicode.GetBytes(message);
+                await Task.Run(() => clientSocket.Send(sendData)); // Отправка сообщения в отдельном потоке
+                return await Task.Run(() => ReceiveMessage()); // Ожидание и прием ответа в отдельном потоке
+            }
+            catch (Exception ex)
+            {
+                return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
+            }
+        }
+
+       
+        private string ReceiveMessage()
+        {
+            try
+            {
                 byte[] receiveData = new byte[256];
                 StringBuilder receivedString = new StringBuilder();
                 int bytesReceived;
@@ -64,9 +102,10 @@ namespace Quotes_Client
             }
             catch (Exception ex)
             {
-                return "Ошибка отправки сообщения/получения ответа: " + ex.Message;
+                return "Ошибка получения ответа: " + ex.Message;
             }
         }
+
 
         private IPEndPoint SocketInit(string ipAddress, string port)
         {

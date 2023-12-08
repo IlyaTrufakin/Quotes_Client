@@ -48,13 +48,21 @@ namespace Quotes_Client
             SendMessageButton.IsEnabled = false;
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private async void Timer_Tick(object sender, EventArgs e) // получаем время с серврера каждую секунду
         {
             if (clientCommunication.IsConnected())
             {
-                string response = clientCommunication.SendMessage("timeQuiet");
-                Status1.Text = "Время Сервера: " + response;
-                Status2.Text = "Соединение с сервером: установлено";
+                try
+                {
+                    string response = await clientCommunication.SendMessageAndReceiveResponseAsync("timeQuiet");
+                    Status1.Text = "Время Сервера: " + response;
+                    Status2.Text = "Соединение с сервером: установлено";
+                }
+                catch (Exception ex)
+                {
+                    OutputWindow.Text += "Ошибка: " + ex.Message + Environment.NewLine;
+                }
+
             }
             else
             {
@@ -64,17 +72,23 @@ namespace Quotes_Client
         }
 
 
-  
-        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
+
+        private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
             if (clientCommunication.IsConnected())
             {
                 if (InputWindow.Text.Length > 0)
                 {
-                    string response = clientCommunication.SendMessage(InputWindow.Text);
-                    OutputWindow.Text += "Ответ сервера: " + response + Environment.NewLine;
+                    try
+                    {
+                        string response = await clientCommunication.SendMessageAndReceiveResponseAsync(InputWindow.Text);
+                        OutputWindow.Text += "Ответ сервера: " + response + Environment.NewLine;
+                    }
+                    catch (Exception ex)
+                    {
+                        OutputWindow.Text += "Ошибка: " + ex.Message + Environment.NewLine;
+                    }
                 }
-
             }
             else
             {
@@ -85,7 +99,9 @@ namespace Quotes_Client
 
 
 
-        private void InputWindow_KeyDown(object sender, KeyEventArgs e)
+
+
+        private async void InputWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -93,8 +109,15 @@ namespace Quotes_Client
                 {
                     if (InputWindow.Text.Length > 0)
                     {
-                        string response = clientCommunication.SendMessage(InputWindow.Text);
-                        OutputWindow.Text += "Ответ сервера: " + response + Environment.NewLine;
+                        try
+                        {
+                            string response = await clientCommunication.SendMessageAndReceiveResponseAsync(InputWindow.Text);
+                            OutputWindow.Text += "Ответ сервера: " + response + Environment.NewLine;
+                        }
+                        catch (Exception ex)
+                        {
+                            OutputWindow.Text += "Ошибка: " + ex.Message + Environment.NewLine;
+                        }
                     }
 
                 }
